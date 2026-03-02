@@ -11,4 +11,9 @@ export class UsuarioRepository {
   listar() {
     return this.usuarios;
   }
+
+  existeEmail(email: string) {
+    const usuario = this.usuarios.find(u => u.email === email);
+    return usuario !== undefined;
+  }
 }
