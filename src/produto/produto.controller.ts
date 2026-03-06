@@ -13,10 +13,14 @@ import { AtualizaProdutoDTO } from './dto/AtualizaProduto.dto';
 import { CriaProdutoDTO } from './dto/CriaProduto.dto';
 import { ProdutoEntity } from './produto.entity';
 import { ProdutoRepository } from './produto.repository';
+import { ProdutoService } from './produto.service';
 
 @Controller('produtos')
 export class ProdutoController {
-  constructor(private readonly produtoRepository: ProdutoRepository) {}
+  constructor(
+    private readonly produtoRepository: ProdutoRepository,
+    private readonly produtoService: ProdutoService
+  ) {}
 
   @Post()
   async criaNovo(@Body() dadosProduto: CriaProdutoDTO) {

@@ -1,7 +1,7 @@
 import { IsEmail, IsNotEmpty, IsOptional, MinLength } from 'class-validator';
 import { EmailUnico } from '../validacao/email-unico.validator';
 
-export class AtualizaUsuarioDto {
+export class DeletaUsuarioDto {
 
   @IsOptional()
   @IsNotEmpty({ message: 'O nome é obrigatório' })
