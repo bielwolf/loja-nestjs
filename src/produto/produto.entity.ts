@@ -4,9 +4,12 @@ import {
   DeleteDateColumn,
   Entity,
   ForeignKey,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import { CaracteristicaProdutoEntity } from "./produto-caracteristicas.entity";
+import { ImagemProdutoEntity } from "./produto-imagem.entity";
 
 @Entity({ name: 'produtos' })
 export class ProdutoEntity {
@@ -31,7 +34,13 @@ export class ProdutoEntity {
 
   @Column({ name: 'categoria', nullable: false, length: 100 })
   categoria: string;
+  
+  @OneToMany(() => CaracteristicaProdutoEntity, (caracteristicasProdutoEntity) => caracteristicasProdutoEntity.produto, { cascade: true, eager: true })
+  caracteristicas: CaracteristicaProdutoEntity[];
 
+  @OneToMany(() => ImagemProdutoEntity, (ImagemProdutoEntity) => ImagemProdutoEntity.produto, { cascade: true, eager: true })
+  imagens: ImagemProdutoEntity[];
+  
   @CreateDateColumn({ name: 'create_at' })
   createAt: string
 
@@ -40,11 +49,4 @@ export class ProdutoEntity {
 
   @DeleteDateColumn({ name: 'delete_at' })
   deleteAt: string
-    caracteristicas: any;
-    imagens: any;
 }
-  // @Column({ name: 'caracteristicas', nullable: false })
-  // caracteristicas: CaracteristicaProduto[];
-
-  // @Column({ name: 'imagens', nullable: false })
-  // imagens: ImagemProduto[];

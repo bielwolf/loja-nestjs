@@ -4,38 +4,68 @@ import {
   IsArray,
   IsNotEmpty,
   IsNumber,
+  IsString,
+  IsUrl,
   IsUUID,
   MaxLength,
   Min,
   ValidateNested,
 } from 'class-validator';
-import { CaracteristicaProdutoDTO } from './CaracteristicaProduto.dto';
-import { ImagemProdutoDTO } from './ImagemProduto.dto';
+import { ProdutoEntity } from '../produto.entity';
+
+export class CaracteristicaProdutoDTO {
+  id: string;
+
+  @IsNotEmpty({ message: 'Nome da cadasterística não pode ser vazio' })
+  @IsString()
+  nome: string;
+
+  @IsNotEmpty({ message: 'Descrição da característica não pode ser vazio' })
+  @IsString()
+  descricao: string;
+
+  produto: ProdutoEntity;
+}
+
+export class ImagemProdutoDTO {
+  id: string;
+
+  @IsUrl({}, { message: 'URL para imagem inválida' })
+  url: string;
+
+  @IsNotEmpty({ message: 'Descrição da imagem não pode ser vazia' })
+  @IsString()
+  descricao: string;
+
+  produto: ProdutoEntity;
+}
 
 export class CriaProdutoDTO {
-
   @IsUUID(undefined, { message: 'ID de usuário inválido' })
   usuarioId: string;
-  
-  @IsNotEmpty({ message: 'O nome do produto é obrigatório' })
+
+  @IsString()
+  @IsNotEmpty({ message: 'Nome do produto não pode ser vazio' })
   nome: string;
 
   @IsNumber({ maxDecimalPlaces: 2, allowNaN: false, allowInfinity: false })
-  @Min(1, { message: 'O valor do produto deve ser maior que zero' })
+  @Min(1, { message: 'O valor precisa ser maior que zero' })
   valor: number;
 
   @IsNumber()
-  @Min(0, { message: 'A quantidade do produto deve ser zero ou maior' })
+  @Min(0, { message: 'Quantidade mínima inválida' })
   quantidade: number;
 
+  @IsString()
+  @IsNotEmpty({ message: 'Descrição do produto não pode ser vazia ' })
   @MaxLength(1000, {
-    message: 'A descrição do produto deve ter no máximo 1000 caracteres',
+    message: 'Descrição não pode ter mais que 1000 caracteres',
   })
   descricao: string;
 
   @ValidateNested()
   @IsArray()
-  @ArrayMinSize(3)
+  @ArrayMinSize(1)
   @Type(() => CaracteristicaProdutoDTO)
   caracteristicas: CaracteristicaProdutoDTO[];
 
@@ -45,6 +75,7 @@ export class CriaProdutoDTO {
   @Type(() => ImagemProdutoDTO)
   imagens: ImagemProdutoDTO[];
 
-  @IsNotEmpty({ message: 'A categoria do produto é obrigatória' })
+  @IsString()
+  @IsNotEmpty({ message: 'Categoria do produto não pode ser vazia' })
   categoria: string;
 }
