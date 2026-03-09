@@ -3,17 +3,15 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  ForeignKey,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-} from "typeorm";
-import { CaracteristicaProdutoEntity } from "./produto-caracteristicas.entity";
-import { ImagemProdutoEntity } from "./produto-imagem.entity";
+} from 'typeorm';
+import { CaracteristicaProdutoEntity } from './produto-caracteristicas.entity';
+import { ImagemProdutoEntity } from './produto-imagem.entity';
 
 @Entity({ name: 'produtos' })
 export class ProdutoEntity {
-
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -26,27 +24,36 @@ export class ProdutoEntity {
   @Column({ name: 'valor', nullable: false })
   valor: number;
 
-  @Column({ name: 'quantidade', nullable: false })
-  quantidade: number;
+  @Column({ name: 'quantidade_disponivel', nullable: false })
+  quantidadeDisponivel: number;
 
   @Column({ name: 'descricao', length: 1000, nullable: false })
   descricao: string;
 
   @Column({ name: 'categoria', nullable: false, length: 100 })
   categoria: string;
-  
-  @OneToMany(() => CaracteristicaProdutoEntity, (caracteristicasProdutoEntity) => caracteristicasProdutoEntity.produto, { cascade: true, eager: true })
+
+  @OneToMany(
+    () => CaracteristicaProdutoEntity,
+    (caracteristicasProdutoEntity) => caracteristicasProdutoEntity.produto,
+    { cascade: true, eager: true },
+  )
   caracteristicas: CaracteristicaProdutoEntity[];
 
-  @OneToMany(() => ImagemProdutoEntity, (ImagemProdutoEntity) => ImagemProdutoEntity.produto, { cascade: true, eager: true })
+  @OneToMany(
+    () => ImagemProdutoEntity,
+    (ImagemProdutoEntity) => ImagemProdutoEntity.produto,
+    { cascade: true, eager: true },
+  )
   imagens: ImagemProdutoEntity[];
-  
+
   @CreateDateColumn({ name: 'create_at' })
-  createAt: string
+  createAt: string;
 
   @UpdateDateColumn({ name: 'update_at' })
-  updateAt: string
+  updateAt: string;
 
   @DeleteDateColumn({ name: 'delete_at' })
-  deleteAt: string
+  deleteAt: string;
+  quantidade: any;
 }

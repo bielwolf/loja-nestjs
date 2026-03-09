@@ -7,11 +7,9 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { randomUUID } from 'crypto';
 
 import { AtualizaProdutoDTO } from './dto/AtualizaProduto.dto';
 import { CriaProdutoDTO } from './dto/CriaProduto.dto';
-import { ProdutoEntity } from './produto.entity';
 import { ProdutoRepository } from './produto.repository';
 import { ProdutoService } from './produto.service';
 
@@ -19,29 +17,21 @@ import { ProdutoService } from './produto.service';
 export class ProdutoController {
   constructor(
     private readonly produtoRepository: ProdutoRepository,
-    private readonly produtoService: ProdutoService
+    private readonly produtoService: ProdutoService,
   ) {}
 
   @Post()
   async criaNovo(@Body() dadosProduto: CriaProdutoDTO) {
-    const produto = new ProdutoEntity();
+    const produtoCadastrado = await this.produtoService.criar(dadosProduto);
 
-    produto.id = randomUUID();
-    produto.nome = dadosProduto.nome;
-    produto.usuarioId = dadosProduto.usuarioId;
-    produto.valor = dadosProduto.valor;
-    produto.quantidade = dadosProduto.quantidade;
-    produto.descricao = dadosProduto.descricao;
-    produto.categoria = dadosProduto.categoria;
-    produto.caracteristicas = dadosProduto.caracteristicas;
-    produto.imagens = dadosProduto.imagens;
-
-    const produtoCadastrado = this.produtoService.criar(produto);
-    return produtoCadastrado;
+    return {
+      mensagem: 'produto cadastrado com sucesso',
+      produto: produtoCadastrado,
+    };
   }
 
   @Get()
-  async listaTodos() {
+  listaTodos() {
     return this.produtoRepository.listaTodos();
   }
 
