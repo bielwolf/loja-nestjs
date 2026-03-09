@@ -7,15 +7,15 @@ import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
-    UsuarioModule, 
+    UsuarioModule,
     ProdutoModule,
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
       useClass: DBConfigService,
-      inject: [DBConfigService]
-    }) 
+      inject: [DBConfigService],
+    }),
   ],
 })
 export class AppModule {}
