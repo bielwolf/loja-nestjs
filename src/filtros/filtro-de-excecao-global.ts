@@ -5,10 +5,13 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
+import { HttpAdapterHost } from '@nestjs/core';
 import { Request, Response } from 'express';
 
 @Catch()
-export class FiltroDeExcecaoHttp implements ExceptionFilter {
+export class FiltroDeExcecaoGlobal implements ExceptionFilter {
+  constructor(private adapterHost: HttpAdapterHost) {}
+
   catch(excecao: unknown, host: ArgumentsHost) {
     console.log(excecao);
 
