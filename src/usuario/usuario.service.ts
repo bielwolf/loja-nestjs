@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ListaUsuarioDTO } from './dto/ListaUsuario.dto';
 import { UsuarioEntity } from './usuario.entity';
@@ -16,11 +16,20 @@ export class UsuarioService {
   async criaUsuario(dadosDoUsuario: CriaUsuarioDto) {
     const usuarioEntity = new UsuarioEntity();
 
-    usuarioEntity.email = dadosDoUsuario.email;
-    usuarioEntity.senha = dadosDoUsuario.senha;
-    usuarioEntity.nome = dadosDoUsuario.nome;
+    Object.assign(usuarioEntity, dadosDoUsuario as UsuarioEntity);
 
     return this.usuarioRepository.save(usuarioEntity);
+  }
+
+  async buscaPorEmail(email: string) {
+    const checkEmail = await this.usuarioRepository.findOne({
+      where: { email },
+    });
+
+    if (checkEmail === null)
+      throw new NotFoundException('O email não foi encontrado.');
+
+    return checkEmail;
   }
 
   async listar(): Promise<ListaUsuarioDTO[]> {
@@ -32,15 +41,20 @@ export class UsuarioService {
   }
 
   async atualizar(id: string, novosDados: AtualizaUsuarioDto) {
-    const usuarioAtualizado = await this.usuarioRepository.update(
-      id,
-      novosDados,
-    );
-    return usuarioAtualizado;
+    const usuario = await this.usuarioRepository.findOneBy({ id });
+
+    Object.assign(usuario, novosDados);
+
+    return this.usuarioRepository.save(usuario);
   }
 
   async deletar(id: string) {
     const usuarioRemovido = await this.usuarioRepository.delete(id);
+
+    if (!usuarioRemovido.affected) {
+      throw new NotFoundException('Usuário nao encontrado');
+    }
+
     return usuarioRemovido;
   }
 }

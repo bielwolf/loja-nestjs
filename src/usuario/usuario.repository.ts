@@ -14,29 +14,31 @@ export class UsuarioRepository {
   }
 
   existeEmail(email: string) {
-    const usuario = this.usuarios.find(u => u.email === email);
+    const usuario = this.usuarios.find((u) => u.email === email);
     return usuario !== undefined;
   }
 
   atualizar(id: string, novosDados: Partial<UsuarioEntity>) {
-    const usuario = this.usuarios.find(u => u.id === id);
+    const usuario = this.usuarios.find((u) => u.id === id);
 
     if (!usuario) {
-      throw new Error('Usuário nao encontrado') ;
+      throw new Error('Usuário nao encontrado');
     }
 
     Object.assign(usuario, novosDados);
-    return usuario
+    return usuario;
   }
 
   deletar(id: string) {
-    const usuario = this.usuarios.find(u => u.id === id); 
+    const usuario = this.usuarios.find((u) => u.id === id);
 
     if (!usuario) {
-      throw new Error('Usuário nao encontrado') ;
+      throw new Error('Usuário nao encontrado');
     }
 
-    const novaLista = this.usuarios = this.usuarios.filter(u => u.id !== id);
-    return novaLista
+    const novaLista = (this.usuarios = this.usuarios.filter(
+      (u) => u.id !== id,
+    ));
+    return novaLista;
   }
 }

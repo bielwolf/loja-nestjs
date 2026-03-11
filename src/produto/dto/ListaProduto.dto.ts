@@ -8,7 +8,6 @@ class ListaImagemProdutoDTO {
   descricao: string;
 }
 
-
 export class ListaProdutoDTO {
   constructor(
     readonly id: string,

@@ -93,9 +93,13 @@ export class PedidoService {
   }
 
   async obtemPedidosDeUsuario(usuarioId: string) {
+    const usuario = await this.buscaUSuario(usuarioId);
+
     return await this.pedidoRepository.find({
       where: {
-        usuario: { id: usuarioId },
+        usuario: {
+          id: usuario.id,
+        },
       },
       relations: {
         usuario: true,

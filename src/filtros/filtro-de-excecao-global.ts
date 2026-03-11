@@ -15,6 +15,8 @@ export class FiltroDeExcecaoGlobal implements ExceptionFilter {
   catch(excecao: unknown, host: ArgumentsHost) {
     console.log(excecao);
 
+    const { httpAdapter } = this.adapterHost;
+
     const contexto = host.switchToHttp();
     const resposta = contexto.getResponse<Response>();
     const requisicao = contexto.getRequest<Request>();
@@ -30,10 +32,10 @@ export class FiltroDeExcecaoGlobal implements ExceptionFilter {
             body: {
               statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
               timestamp: new Date().toISOString(),
-              path: requisicao.url,
+              path: httpAdapter.getRequestUrl(requisicao),
             },
           };
 
-    resposta.status(status).json(body);
+    httpAdapter.reply(resposta, body, status);
   }
 }
