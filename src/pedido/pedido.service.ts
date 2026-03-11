@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PedidoEntity } from './pedido.entity';
 import { UsuarioEntity } from '../usuario/usuario.entity';
@@ -7,6 +7,7 @@ import { StatusPedido } from './enum/statuspedido.enum';
 import { CriaPedidoDTO } from './dto/CriaPedido.dto';
 import { ItemPedidoEntity } from './itemPedido.entity';
 import { ProdutoEntity } from '../produto/produto.entity';
+import { AtualizaPedidoDto } from './dto/AtualizaPedido.dto';
 
 @Injectable()
 export class PedidoService {
@@ -19,8 +20,38 @@ export class PedidoService {
     private readonly produtoRepository: Repository<ProdutoEntity>,
   ) {}
 
+  private async buscaUSuario(id: string) {
+    const usuario = await this.usuarioRepository.findOneBy({ id });
+    if (usuario === null) {
+      throw new NotFoundException('Usuário nao encontrado');
+    }
+    return usuario;
+  }
+
+  private trataDadosDoPedido(
+    dadosDoPedido: CriaPedidoDTO,
+    produtosRelacionados: ProdutoEntity[],
+  ) {
+    dadosDoPedido.itensPedido.forEach((itemPedido) => {
+      const produtoRelacionado = produtosRelacionados.find(
+        (produto) => produto.id === itemPedido.produtoId,
+      );
+      if (produtoRelacionado === undefined) {
+        throw new NotFoundException(
+          `O produto com id ${itemPedido.produtoId} nao foi encontrado`,
+        );
+      }
+
+      if (produtoRelacionado.quantidadeDisponivel < itemPedido.quantidade) {
+        throw new NotFoundException(
+          `O produto com id ${itemPedido.produtoId} nao tem quantidade suficiente`,
+        );
+      }
+    });
+  }
+
   async cadastrarPedido(usuarioId: string, dadosDoPedido: CriaPedidoDTO) {
-    const usuario = await this.usuarioRepository.findOneBy({ id: usuarioId });
+    const usuario = await this.buscaUSuario(usuarioId);
     const produtosIds = dadosDoPedido.itensPedido.map(
       (itemPedido) => itemPedido.produtoId,
     );
@@ -28,6 +59,9 @@ export class PedidoService {
     const produtosRelacionados = await this.produtoRepository.findBy({
       id: In(produtosIds),
     });
+
+    this.trataDadosDoPedido(dadosDoPedido, produtosRelacionados);
+
     const pedido = new PedidoEntity();
 
     pedido.status = StatusPedido.EM_PROCESSAMENTO;
@@ -37,6 +71,7 @@ export class PedidoService {
       const produtoRelacionado = produtosRelacionados.find(
         (produto) => produto.id === item.produtoId,
       );
+
       const itemPedido = new ItemPedidoEntity();
 
       itemPedido.quantidade = item.quantidade;
@@ -66,5 +101,17 @@ export class PedidoService {
         usuario: true,
       },
     });
+  }
+
+  async atualizaPedido(id: string, dto: AtualizaPedidoDto) {
+    const pedido = await this.pedidoRepository.findOneBy({ id });
+
+    if (pedido === null) {
+      throw new NotFoundException('Pedido nao encontrado');
+    }
+
+    Object.assign(pedido, dto);
+
+    return await this.pedidoRepository.save(pedido);
   }
 }

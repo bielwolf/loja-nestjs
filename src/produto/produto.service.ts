@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProdutoEntity } from './produto.entity';
@@ -47,11 +47,15 @@ export class ProdutoService {
   }
 
   async atualizar(id: string, novosDados: AtualizaProdutoDTO) {
-    const produtoAtualizado = await this.produtoRepository.update(
-      id,
-      novosDados,
-    );
-    return produtoAtualizado;
+    const produtoAtualizado = await this.produtoRepository.findOneBy({ id });
+
+    if (produtoAtualizado === null) {
+      throw new NotFoundException('Produto nao encontrado');
+    }
+
+    Object.assign(produtoAtualizado, novosDados);
+
+    return this.produtoRepository.save(produtoAtualizado);
   }
 
   async deletar(id: string) {
