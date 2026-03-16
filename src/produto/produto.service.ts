@@ -40,6 +40,29 @@ export class ProdutoService {
     return listaProdutos;
   }
 
+  async listaUmProduto(id: string) {
+    const produtoSalvo = await this.produtoRepository.findOne({
+      where: { id },
+      relations: {
+        imagens: true,
+        caracteristicas: true,
+      },
+    });
+
+    if (produtoSalvo === null) {
+      throw new NotFoundException('O produto não foi encontrado');
+    }
+
+    const listaProduto = new ListaProdutoDTO(
+      produtoSalvo.id,
+      produtoSalvo.nome,
+      produtoSalvo.caracteristicas,
+      produtoSalvo.imagens,
+    );
+
+    return listaProduto;
+  }
+
   async atualizar(id: string, novosDados: AtualizaProdutoDTO) {
     const produtoAtualizado = await this.produtoRepository.findOneBy({ id });
 

@@ -24,7 +24,7 @@ export class ProdutoRepository {
     return possivelProduto;
   }
 
-  async atualiza(id: string, dadosProduto: Partial<ProdutoEntity>) {
+  atualiza(id: string, dadosProduto: Partial<ProdutoEntity>) {
     const dadosNaoAtualizaveis = ['id', 'usuarioId'];
     const produto = this.buscaPorId(id);
     Object.entries(dadosProduto).forEach(([chave, valor]) => {
@@ -37,7 +37,7 @@ export class ProdutoRepository {
     return produto;
   }
 
-  async remove(id: string) {
+  remove(id: string) {
     const produtoRemovido = this.buscaPorId(id);
     this.produtos = this.produtos.filter((produto) => produto.id !== id);
     return produtoRemovido;

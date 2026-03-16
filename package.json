@@ -24,12 +24,15 @@
     "migration:show": "npm run typeorm -- migration:show"
   },
   "dependencies": {
+    "@nestjs/cache-manager": "3.0.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/typeorm": "^11.0.0",
+    "cache-manager": "6.4.3",
+    "cache-manager-redis-yet": "4.1.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.4",
     "dotenv": "^16.0.3",
