@@ -109,14 +109,21 @@ export class PedidoService {
     });
   }
 
-  async atualizaPedido(id: string, dto: AtualizaPedidoDto) {
-    const pedido = await this.pedidoRepository.findOneBy({ id });
+  async atualizaPedido(id: string, dto: AtualizaPedidoDto, usuarioId: string) {
+    const pedido = await this.pedidoRepository.findOne({
+      where: { id },
+      relations: { usuario: true },
+    });
 
     if (pedido === null) {
       throw new NotFoundException('Pedido nao encontrado');
     }
 
-    Object.assign(pedido, dto);
+    if (pedido.usuario.id !== usuarioId) {
+      throw new NotFoundException('Pedido nao pertence ao usuário');
+    }
+
+    Object.assign(pedido, dto as PedidoEntity);
 
     return await this.pedidoRepository.save(pedido);
   }
