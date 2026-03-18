@@ -10,7 +10,7 @@ import { Request, Response } from 'express';
 import { RequisicaoComUsuario } from 'src/modulos/autenticacao/autenticacao.guard';
 
 @Injectable()
-export class LoggerGlobalInterceptor implements NestInterceptor {
+export class FiltroDeExcecaoGlobal implements NestInterceptor {
   constructor(private logger: ConsoleLogger) {}
   intercept(contexto: ExecutionContext, next: CallHandler): Observable<any> {
     const contextoHttp = contexto.switchToHttp();
