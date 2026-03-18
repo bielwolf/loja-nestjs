@@ -1,52 +1,43 @@
 import {
-  ArgumentsHost,
-  Catch,
+  CallHandler,
   ConsoleLogger,
-  ExceptionFilter,
-  HttpException,
-  HttpStatus,
+  ExecutionContext,
+  Injectable,
+  NestInterceptor,
 } from '@nestjs/common';
-import { HttpAdapterHost } from '@nestjs/core';
+import { Observable, tap } from 'rxjs';
 import { Request, Response } from 'express';
+import { RequisicaoComUsuario } from 'src/modulos/autenticacao/autenticacao.guard';
 
-@Catch()
-export class FiltroDeExcecaoGlobal implements ExceptionFilter {
-  constructor(
-    private adapterHost: HttpAdapterHost,
-    private loggerNativo: ConsoleLogger,
-  ) {}
+@Injectable()
+export class LoggerGlobalInterceptor implements NestInterceptor {
+  constructor(private logger: ConsoleLogger) {}
+  intercept(contexto: ExecutionContext, next: CallHandler): Observable<any> {
+    const contextoHttp = contexto.switchToHttp();
 
-  catch(excecao: unknown, host: ArgumentsHost) {
-    this.loggerNativo.error(excecao);
-    console.error(excecao);
+    const requisicao = contextoHttp.getRequest<
+      Request | RequisicaoComUsuario
+    >();
+    const resposta = contextoHttp.getResponse<Response>();
 
-    const { httpAdapter } = this.adapterHost;
+    const { path, method } = requisicao;
+    const { statusCode } = resposta;
+    this.logger.log(`${method} ${path}`);
 
-    const contexto = host.switchToHttp();
-    const resposta = contexto.getResponse();
-    const requisicao = contexto.getRequest();
+    const instantePreControlador = Date.now();
 
-    if ('usuario' in requisicao) {
-      this.loggerNativo.log(
-        `Rota acessada pelo usuário ${requisicao.usuario.sub}`,
-      );
-    }
-
-    const { status, body } =
-      excecao instanceof HttpException
-        ? {
-            status: excecao.getStatus(),
-            body: excecao.getResponse(),
-          }
-        : {
-            status: HttpStatus.INTERNAL_SERVER_ERROR,
-            body: {
-              statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-              timestamp: new Date().toISOString(),
-              path: httpAdapter.getRequestUrl(requisicao),
-            },
-          };
-
-    httpAdapter.reply(resposta, body, status);
+    return next.handle().pipe(
+      tap(() => {
+        if ('usuario' in requisicao) {
+          this.logger.log(
+            `Rota acessada pelo usuário: ${requisicao.usuario.sub}`,
+          );
+        }
+        const tempoDeExecucaoDaRota = Date.now() - instantePreControlador;
+        this.logger.log(
+          `Resposta: status ${statusCode} - ${tempoDeExecucaoDaRota}ms`,
+        );
+      }),
+    );
   }
 }
