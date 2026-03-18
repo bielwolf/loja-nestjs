@@ -19,7 +19,7 @@ export class ItemPedidoEntity {
   })
   pedido: PedidoEntity;
 
-  @ManyToOne(() => ProdutoEntity, (produto) => produto.itensPedidos, {
+  @ManyToOne(() => ProdutoEntity, (produto) => produto.itensPedido, {
     cascade: ['update'],
     eager: true,
   })

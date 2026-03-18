@@ -1,3 +1,4 @@
+import { CacheInterceptor } from '@nestjs/cache-manager';
 import {
   Body,
   Controller,
@@ -11,32 +12,27 @@ import {
 
 import { AtualizaProdutoDTO } from './dto/AtualizaProduto.dto';
 import { CriaProdutoDTO } from './dto/CriaProduto.dto';
-import { ProdutoRepository } from './produto.repository';
 import { ProdutoService } from './produto.service';
-import { CacheInterceptor, CacheKey } from '@nestjs/cache-manager';
 
 @Controller('produtos')
 export class ProdutoController {
-  constructor(
-    private readonly produtoRepository: ProdutoRepository,
-    private readonly produtoService: ProdutoService,
-  ) {}
+  constructor(private readonly produtoService: ProdutoService) {}
 
   @Post()
   async criaNovo(@Body() dadosProduto: CriaProdutoDTO) {
-    const produtoCadastrado = await this.produtoService.criar(dadosProduto);
+    const produtoCadastrado =
+      await this.produtoService.criaProduto(dadosProduto);
 
     return {
-      mensagem: 'produto cadastrado com sucesso',
+      mensagem: 'Produto criado com sucesso.',
       produto: produtoCadastrado,
     };
   }
 
   @Get()
   @UseInterceptors(CacheInterceptor)
-  @CacheKey('lista_produtos')
-  listaTodos() {
-    return this.produtoRepository.listaTodos();
+  async listaTodos() {
+    return this.produtoService.listaProdutos();
   }
 
   @Get('/:id')
@@ -54,7 +50,7 @@ export class ProdutoController {
     @Param('id') id: string,
     @Body() dadosProduto: AtualizaProdutoDTO,
   ) {
-    const produtoAlterado = await this.produtoService.atualizar(
+    const produtoAlterado = await this.produtoService.atualizaProduto(
       id,
       dadosProduto,
     );
@@ -67,7 +63,7 @@ export class ProdutoController {
 
   @Delete('/:id')
   async remove(@Param('id') id: string) {
-    const produtoRemovido = await this.produtoService.deletar(id);
+    const produtoRemovido = await this.produtoService.deletaProduto(id);
 
     return {
       mensagem: 'produto removido com sucesso',
