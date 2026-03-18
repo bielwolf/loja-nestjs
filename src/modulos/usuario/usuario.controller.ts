@@ -9,11 +9,10 @@ import {
 } from '@nestjs/common';
 import { UsuarioRepository } from './usuario.repository';
 import { CriaUsuarioDto } from './dto/CriaUsuario.dto';
-import { UsuarioEntity } from './usuario.entity';
-import { v4 as uuid } from 'uuid';
 import { ListaUsuarioDTO } from './dto/ListaUsuario.dto';
 import { AtualizaUsuarioDto } from './dto/AtualizaUsuario.dto';
 import { UsuarioService } from './usuario.service';
+import { HashearSenhaPipe } from 'src/recursos/pipes/hashear-senha.pipe';
 
 @Controller('/usuarios')
 export class UsuarioController {
@@ -23,12 +22,18 @@ export class UsuarioController {
   ) {}
 
   @Post()
-  async criaUsuario(@Body() dadosDoUsuario: CriaUsuarioDto) {
-    const usuarioCriado = await this.usuarioService.criaUsuario(dadosDoUsuario);
+  async criaUsuario(
+    @Body() { senha, ...dadosDoUsuario }: CriaUsuarioDto,
+    @Body('senha', HashearSenhaPipe) senhaHasheada: string,
+  ) {
+    const usuarioCriado = await this.usuarioService.criaUsuario({
+      ...dadosDoUsuario,
+      senha: senhaHasheada,
+    });
 
     return {
-      usuario: new ListaUsuarioDTO(usuarioCriado.id, usuarioCriado.nome),
       messagem: 'usuário criado com sucesso',
+      usuario: new ListaUsuarioDTO(usuarioCriado.id, usuarioCriado.nome),
     };
   }
 
