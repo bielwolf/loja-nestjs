@@ -21,7 +21,9 @@ export class PedidoService {
   ) {}
 
   private async buscaUSuario(id: string) {
+    console.log('ID recebido:', id);
     const usuario = await this.usuarioRepository.findOneBy({ id });
+    console.log('Usuário encontrado:', usuario);
     if (usuario === null) {
       throw new NotFoundException('Usuário nao encontrado');
     }
